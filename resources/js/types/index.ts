@@ -1,6 +1,21 @@
 import type { PageProps } from '@inertiajs/core';
 import type { LucideIcon } from 'lucide-vue-next';
 
+export interface Customer {
+    name: string,
+    reference: string,
+    start_date: Date,
+    description: string,
+    category?: Category,
+    category_id: number,
+}
+
+export interface Category {
+    id: number,
+    name: string,
+    customers?: Array<Customer>,
+}
+
 export interface Auth {
     user: User;
 }
