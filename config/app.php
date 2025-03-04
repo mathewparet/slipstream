@@ -15,6 +15,12 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    'categories' => [
+        'Gold',
+        'Silver',
+        'Bronze',
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
