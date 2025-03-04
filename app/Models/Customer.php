@@ -16,7 +16,7 @@ class Customer extends Model
 
     protected $fillable = [
         'name',
-        'category',
+        'category_id',
         'reference',
         'start_date',
         'description',
