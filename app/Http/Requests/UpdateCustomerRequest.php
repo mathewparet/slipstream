@@ -21,6 +21,8 @@ class UpdateCustomerRequest extends FormRequest
      */
     public function rules(): array
     {
-        return StoreCustomerRequest::genericRules();
+        return array_merge_recursive(StoreCustomerRequest::genericRules(), [
+            'reference' => 'required|unique:customers,reference,' . $this->customer->id
+        ]);
     }
 }

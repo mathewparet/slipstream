@@ -21,7 +21,9 @@ class StoreCustomerRequest extends FormRequest
      */
     public function rules(): array
     {
-        return self::genericRules();
+        return array_merge_recursive(self::genericRules(), [
+            'reference' => 'required|unique:customers,reference'
+        ]);
     }
 
     public static function genericRules(): array
@@ -29,7 +31,6 @@ class StoreCustomerRequest extends FormRequest
         return [
             'name' => 'required|string',
             'category_id' => 'required|exists:categories,id',
-            'reference' => 'required|string|unique:customers',
             'start_date' => 'required|date',
             'description' => 'nullable|string',
         ];
