@@ -16,7 +16,7 @@ class CustomerController extends Controller
     {
         $customers = Customer::all();
 
-        return Inertia::render('Customers/Index', compact('customer'));
+        return Inertia::render('Customers/Index', compact('customers'));
     }
 
     /**
