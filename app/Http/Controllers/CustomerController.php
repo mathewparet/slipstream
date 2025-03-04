@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
+use App\Models\Category;
 use App\Models\Customer;
 use Inertia\Inertia;
 
@@ -16,7 +17,9 @@ class CustomerController extends Controller
     {
         $customers = Customer::all();
 
-        return Inertia::render('Customers/Index', compact('customers'));
+        $categories = Category::all();
+
+        return Inertia::render('Customers/Index', compact('customers', 'categories'));
     }
 
     /**
