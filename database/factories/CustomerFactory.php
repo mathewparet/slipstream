@@ -18,11 +18,11 @@ class CustomerFactory extends Factory
      */
     public function definition(): array
     {
-        $index = Customer::latest()->first()->id;
+        static $index = Customer::latest('id')->first()?->id | 0;
 
         return [
             'name' => $this->faker->company(),
-            'category' => $this->faker->randomElement(Category::all()),
+            'category_id' => $this->faker->randomElement(Category::get()->pluck('id')),
             'reference' => 'CUST-'.++$index,
             'start_date' => $this->faker->date(),
             'description' => $this->faker->optional()->sentence()
