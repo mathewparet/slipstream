@@ -6,6 +6,7 @@ use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
 use App\Models\Category;
 use App\Models\Customer;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class CustomerController extends Controller
@@ -13,9 +14,22 @@ class CustomerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $customers = Customer::all();
+        $request->validate([
+            'query' => 'nullable|string',
+            'category_id' => 'nullable|exists:categories,id'
+        ]);
+
+        $query = Customer::query();
+
+        if($request->has('query') && !blank($request->get('query')))
+            $query = $query->search($request->get('query'));
+        
+        if($request->has("category_id") && !blank($request->category_id))
+            $query = $query->forCategory($request->category_id);
+
+        $customers = $query->get()->all();
 
         $categories = Category::all();
 
