@@ -29,7 +29,7 @@ class Customer extends Model
     protected function casts()
     {
         return [
-            'start_date' => 'date'
+            'start_date' => 'date:Y-m-d'
         ];
     }
 
