@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('reference');
+            $table->string('reference')->unique();
             $table->foreignId('category_id');
             $table->date('start_date');
             $table->string('description')->nullable();
