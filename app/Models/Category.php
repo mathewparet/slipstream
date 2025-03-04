@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * @var \Illuminate\Database\Eloquent\Relations\HasMany $customers
+ * @var \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Customer> $customers
  */
 class Category extends Model
 {
