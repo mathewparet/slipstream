@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @var  \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Category> $category
  * @method \Illuminate\Database\Eloquent\Builder search($query)
  * @method \Illuminate\Database\Eloquent\Builder forCategory($category_id)
+ * @var \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Contact> $contacts
  */
 class Customer extends Model
 {
@@ -50,5 +52,10 @@ class Customer extends Model
     public function scopeForCategory(Builder $query, $category_id): Builder
     {
         return $query->where('category_id', $category_id);
+    }
+
+    public function contacts(): HasMany
+    {
+        return $this->hasMany(Contact::class)->chaperone();
     }
 }
