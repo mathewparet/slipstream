@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
- * @var \Illuminate\Database\Eloquent\Relations\BelongsTo $category
+ * @var  \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Category> $category
  * @method \Illuminate\Database\Eloquent\Builder search($query)
  * @method \Illuminate\Database\Eloquent\Builder forCategory($category_id)
  */
