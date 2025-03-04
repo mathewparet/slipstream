@@ -13,3 +13,9 @@ This project helps manage customers and contacts.
 7. Run migrations, and seed the database - `vendor/bin/sail artisan migrate --seed`
 9. Set application key - `vendor/bin/sail artisan key:generate`
 8. Visit http://localhost to access the application. (if not using sail you will need to run `php composer run dev` or `php artisan serve`)
+
+# Adding additional data
+
+I have made factories for customers and contacts, so if you want to seed these you may run the corresponding factory like:
+
+`vendor\bin\sail artisan db:seed CustomerSeeder`
