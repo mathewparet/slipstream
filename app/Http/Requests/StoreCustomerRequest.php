@@ -29,7 +29,7 @@ class StoreCustomerRequest extends FormRequest
         return [
             'name' => 'required|string',
             'category' => 'required|exists:categories,id',
-            'reference' => 'required|string|unique',
+            'reference' => 'required|string|unique:customers',
             'start_date' => 'required|date',
             'description' => 'nullable|string',
         ];
