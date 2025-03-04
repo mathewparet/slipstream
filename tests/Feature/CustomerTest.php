@@ -141,4 +141,27 @@ class CustomerTest extends TestCase
 
         $response->assertSee('Another Company Ltd Renamed');
     }
+
+    public function test_customer_can_be_deleted()
+    {
+        $response = $this->post('/customers', [
+            'name' => 'Acme Ltd',
+            'reference' => 'CUST-01',
+            'start_date' => now()->format('Y-m-d'),
+            'description' => 'Some random description',
+            'category_id' => Category::whereName('Gold')->first()->id
+        ]);
+
+        $response = $this->get('/customers');
+
+        $response->assertSee('Acme Ltd');
+
+        $response = $this->delete('/customers/' . Customer::first()->id);
+
+        $response->assertOk();
+
+        $response = $this->get('/customers');
+
+        $response->assertDontSee('Acme Ltd');
+    }
 }
