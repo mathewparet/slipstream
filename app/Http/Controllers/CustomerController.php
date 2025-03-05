@@ -29,7 +29,7 @@ class CustomerController extends Controller
         if($request->has("category_id") && !blank($request->category_id))
             $query = $query->forCategory($request->category_id);
 
-        $customers = $query->get()->all();
+        $customers = $query->withCount('contacts')->get()->all();
 
         $categories = Category::all();
 

@@ -10,6 +10,15 @@ export interface Customer {
     category?: Category,
     category_id?: number|null,
     contacts_count?: number,
+    contacts?: Array<Contact>
+}
+
+export interface Contact {
+    id: number,
+    first_name: string,
+    last_name: string,
+    customer_id: number,
+    customer?: Customer
 }
 
 export interface Category {
