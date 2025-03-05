@@ -9,7 +9,7 @@
     import { Select } from '@/components/ui/select';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
-    import type { Customer, Category } from '@/types';
+    import type { Customer, Category, Contact } from '@/types';
     import DeleteWarning from '@/components/DeleteWarning.vue';
 
     import {
@@ -32,7 +32,9 @@
     const props = defineProps<Props>()
 
     const editingCustomer = ref<Customer|boolean>(false);
-    const deletionWarningModal = ref(null);
+    const editingContact = ref<Contact|boolean>(false);
+    const deleteCustomerWarningModal = ref(null);
+    const deleteContactWarningModal = ref(null);
 
     const form = useForm({
         name: '',
@@ -40,6 +42,11 @@
         reference: '',
         category_id: null,
         start_date: ''
+    })
+
+    const contactForm = useForm({
+        first_name: '',
+        last_name: '',
     })
 
     const categoryOptions = computed(() => {
@@ -51,13 +58,13 @@
         })
     })
 
-    const submitChanges = () => {
+    const submitCustomer = () => {
         if(editingCustomer.value === true) {
             form.post(route('customers.store'), {
                 preserveScroll: true,
                 preserveState: true,
                 onSuccess: () => {
-                    closeModal();
+                    closeCustomerModal();
                 }
             })
         } else {
@@ -65,20 +72,55 @@
                 preserveScroll: true,
                 preserveState: true, 
                 onSuccess: () => {
-                    closeModal();
+                    closeCustomerModal();
+                }
+            })
+        }
+    }
+    
+    const submitContact = () => {
+        if(editingContact.value === true) {
+            contactForm.post(route('customers.contacts.store', {customer: editingCustomer.value.id}), {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: () => {
+                    editCustomer(editingCustomer.value)
+                    closeContactModal();
+                }
+            })
+        } else {
+            contactForm.patch(route('customers.contacts.update', {customer: editingCustomer.value.id, contact: editingContact.value.id}), {
+                preserveScroll: true,
+                preserveState: true, 
+                onSuccess: () => {
+                    editCustomer(editingCustomer.value)
+                    closeContactModal();
                 }
             })
         }
     }
 
-    const editCustomer = (customer: Customer) => {
-        editingCustomer.value = customer;
+    const contacts = ref<Array<Contact>|null>(null)
 
-        form.name = customer.name;
-        form.reference = customer.reference;
-        form.category_id = customer.category_id
-        form.start_date = customer.start_date
-        form.description = customer.description
+    const editContact = (contact: Contact) => {
+        editingContact.value = contact;
+        contactForm.first_name = contact.first_name;
+        contactForm.last_name = contact.last_name;
+    }
+
+    const editCustomer = (customer: Customer) => {
+
+        axios.get(route('customers.contacts.index', {customer: customer.id}))
+            .then((response) => {
+                editingCustomer.value = customer;
+                contacts.value = response.data;
+                form.name = customer.name;
+                form.reference = customer.reference;
+                form.category_id = customer.category_id
+                form.start_date = customer.start_date
+                form.description = customer.description
+            });
+
     }
 
     const deleteCustomer = (customer: Customer) => {
@@ -86,22 +128,43 @@
             preserveScroll: true,
             preserveState: false,
             onSuccess: () => {
-                deletionWarningModal.value?.close();
+                deleteCustomerWarningModal.value?.close();
+            }
+        })
+    }
+    
+    const deleteContact = (contact: Contact) => {
+        form.delete(route('customers.contacts.destroy', {customer: contact.customer_id, contact: contact.id}), {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                deleteContactWarningModal.value?.close();
+                editCustomer(editingCustomer.value);
             }
         })
     }
 
-    const initiateDeletion = (customer: Customer) => {
-        deletionWarningModal.value.confirm(customer);
+    const initiateCustomerDeletion = (customer: Customer) => {
+        deleteCustomerWarningModal.value.confirm(customer);
+    }
+    
+    const initiateContactDeletion = (contact: Contact) => {
+        deleteContactWarningModal.value.confirm(contact);
     }
 
-    const closeModal = () => {
+    const closeCustomerModal = () => {
         editingCustomer.value = false;
         form.name = '';
         form.category_id = null;
         form.reference = '';
         form.start_date = '';
         form.description = ''
+    }
+  
+    const closeContactModal = () => {
+        editingContact.value = false;
+        contactForm.first_name = '';
+        contactForm.last_name = '';
     }
 
     const searchForm = useForm({
@@ -175,7 +238,7 @@
                                             <div class="flex space-x-2">
                                                 <button class="text-blue-500" @click="editCustomer(customer)">Edit</button>
                                                 <span>|</span>
-                                                <button class="text-red-500" @click.prevent="initiateDeletion(customer)">Delete</button>
+                                                <button class="text-red-500" @click.prevent="initiateCustomerDeletion(customer)">Delete</button>
                                             </div>
                                         </td>
                                     </tr>
@@ -186,15 +249,19 @@
                 </div>
             </div>
         </div>
-        <DeleteWarning ref="deletionWarningModal" @confirmed="deleteCustomer"/>
+        <DeleteWarning ref="deleteCustomerWarningModal" @confirmed="deleteCustomer"/>
         <Dialog v-model:open="editingCustomer" class="max-w-4xl">
             <DialogContent>
-                <form class="space-y-6" @submit.prevent="submitChanges">
+                <form class="space-y-6" @submit.prevent="submitCustomer">
                     <DialogHeader class="space-y-3">
                         <DialogTitle class="flex justify-between mr-5">
                             <div>Customers - Detail</div>
                             <div class="flex space-x-2">
-                                <Link as="button" @click="closeModal">Back</Link>
+                                <DialogClose
+                                    aria-label="Close"
+                                >
+                                    <div>Back</div>
+                                </DialogClose>
                                 <Button type="submit">Save</Button>
                             </div>
                         </DialogTitle>
@@ -231,7 +298,80 @@
                             </div>
                         </div>
                     </div>
+                    <div class="mb-8 space-y-0.5 flex justify-between">
+                        <h2 class="text-xl font-semibold tracking-tight">Contacts</h2>
+                        <Button @click="() => editingContact = true">Create</Button>
+                    </div>
+                    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">
+                                        First Name
+                                    </th>
+                                    <th scope="col" class="px-6 py-3">
+                                        Last Name
+                                    </th>
+                                    <th scope="col" class="px-6 py-3">
+                                        Action
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="contact in contacts" :key="contact.id" class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
+                                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        {{ contact.first_name }}
+                                    </th>
+                                    <td class="px-6 py-4">
+                                        {{ contact.last_name }}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex space-x-2">
+                                            <button class="text-blue-500" @click="editContact(contact)">Edit</button>
+                                            <span>|</span>
+                                            <button class="text-red-500" @click.prevent="initiateContactDeletion(contact)">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </form>
+                <DeleteWarning ref="deleteContactWarningModal" @confirmed="deleteContact"/>
+                <Dialog v-model:open="editingContact" class="max-w-4xl">
+                    <DialogContent>
+                        <form class="space-y-6" @submit.prevent="submitContact">
+                            <DialogHeader class="space-y-3">
+                                <DialogTitle class="flex justify-between mr-5">
+                                    <div>Contact - Detail</div>
+                                    <div class="flex space-x-2">
+                                        <DialogClose
+                                            aria-label="Close"
+                                        >
+                                            <div>Back</div>
+                                        </DialogClose>
+                                        <Button type="submit">Save</Button>
+                                    </div>
+                                </DialogTitle>
+                            </DialogHeader>
+
+                            <div class="grid grid-cols-1 gap-4">
+                                <div>
+                                    <div class="grid gap-2 mb-2">
+                                        <Label for="first_name">First Name</Label>
+                                        <Input id="first_name" type="text" name="first_name" ref="firstNameInput" v-model="contactForm.first_name" placeholder="John" />
+                                        <InputError :message="contactForm.errors.first_name" />
+                                    </div>
+                                    <div class="grid gap-2 mb-2">
+                                        <Label for="last_name">Last Name</Label>
+                                        <Input id="last_name" type="text" name="last_name" ref="firstNameInput" v-model="contactForm.last_name" placeholder="Doe" />
+                                        <InputError :message="contactForm.errors.last_name" />
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </DialogContent>
+                </Dialog>
             </DialogContent>
         </Dialog>
     </AppLayout>
