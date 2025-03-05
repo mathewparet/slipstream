@@ -18,4 +18,4 @@ require __DIR__.'/auth.php';
 
 Route::resource('customers', CustomerController::class)->except(['edit', 'create', 'show']);
 
-Route::resource('customers.contacts', ContactController::class)->except(['edit', 'create', 'show', 'index']);
+Route::resource('customers.contacts', ContactController::class)->except(['edit', 'create', 'show']);
