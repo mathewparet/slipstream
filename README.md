@@ -12,7 +12,7 @@ This project helps manage customers and contacts.
 6. I've already built the UI, but if you need to build it again you can run `vendor/bin/sail npm run build`
 7. Run migrations, and seed the database - `vendor/bin/sail artisan migrate --seed`
 9. Set application key - `vendor/bin/sail artisan key:generate`
-8. Visit http://localhost to access the application. (if not using sail you will need to run `php composer run dev` or `php artisan serve`)
+8. Visit http://localhost/customers to access the application. (if not using sail you will need to run `php composer run dev` or `php artisan serve`)
 
 # Adding additional data
 
